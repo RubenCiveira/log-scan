@@ -26,13 +26,12 @@ $app->add(function (Request $request, $handler) {
 
 // Serve static files
 $app->get('/', function (Request $request, Response $response) {
-    $html = file_get_contents(__DIR__ . '/../templates/dashboard.html');
-    $response->getBody()->write($html);
+    $response->getBody()->write('<h1>Hihi</h1>');
     return $response->withHeader('Content-Type', 'text/html');
 });
 
 // API Routes for observability
-$app->get('/ping', function (Request $request, Response $response, $args) use ($appManager) {
+$app->get('/ping', function (Request $request, Response $response, $args) {
 });
 
 $app->run();
