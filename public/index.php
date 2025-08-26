@@ -1,8 +1,6 @@
 <?php
 require_once '../vendor/autoload.php';
 
-require_once '../src/Access.php';
-
 use App\Access;
 use Slim\Factory\AppFactory;
 use Psr\Http\Message\ResponseInterface as Response;
