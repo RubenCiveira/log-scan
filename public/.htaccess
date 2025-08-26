@@ -1,0 +1,19 @@
+# RewriteEngine On
+
+# Detectar la subcarpeta automáticamente
+# RewriteCond %{REQUEST_URI}::%{REQUEST_FILENAME} !^(.+)/index.php::/.*$
+# RewriteRule ^(.*)$ index.php [QSA,L]
+
+RewriteEngine On
+
+# No reescribir si se accede a un archivo o directorio real
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Si URI contiene index.php en una subcarpeta (para compatibilidad con subdirectorios)
+RewriteCond %{REQUEST_URI}::%{REQUEST_FILENAME} ^(.+)/index.php::/.*$
+RewriteRule ^ - [L]
+
+# Reescribir todo lo demás a index.php
+RewriteRule ^ index.php [QSA,L]

@@ -1,0 +1,27 @@
+# Dependencias de Composer
+.env
+/vendor/
+
+# Archivos de Composer que no deben versionarse
+/composer.lock
+
+# Archivos temporales o de caché
+/.composer/
+/.cache/
+/.tmp/
+/temp/
+/logs/
+
+# Archivos del sistema operativo o IDE
+.DS_Store
+Thumbs.db
+*.log
+
+# PHPUnit (si usas tests)
+.phpunit.result.cache
+coverage/
+
+# Opcional: directorios de build o artefactos
+/build/
+/dist/
+/node_modules/
