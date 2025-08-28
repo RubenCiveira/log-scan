@@ -8,9 +8,10 @@ from langchain_community.utilities import WikipediaAPIWrapper
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.tools import Tool
+from langchain_core.tools import BaseTool
 
-from agent import Agent
-from rag import RAGExpander
+from lib.agent import Agent
+from lib.rag import RAGExpander
 
 class TooledConfig(BaseModel):
     model: str = Field("gpt-4o-mini", title="Modelo")
@@ -35,8 +36,8 @@ class TooledAgent(Agent):
     def deps_model(cls):
         return TooledDeps 
 
-    def _execute(self, instruction: str, cfg: Optional[TooledConfig], ctx: Optional[TooledConfig]) -> str:
-        print( ctx.rag )
+    def _execute(self, instruction: str) -> str:
+        # print( self.tools )
         return "verde"
         # model_name = cfg.model
         # temperature = cfg.temperature

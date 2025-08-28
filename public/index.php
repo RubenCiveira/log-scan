@@ -31,7 +31,7 @@ $app->get('/', function (Request $request, Response $response) {
     $manager = new ConfigManager();
 
     $python = realpath( '../') . '/pyenv/bin/python3';
-    $script = realpath( '../') . '/agents/test.py';
+    $script = 'agents.test';
 
     $descriptor = [
         0 => ['pipe', 'r'],
@@ -43,10 +43,10 @@ $app->get('/', function (Request $request, Response $response) {
     ];
 
     $process = proc_open(
-        [$python, $script, '¿Quién es Rosalía? Busca y dame 3 datos.'],
+        [$python, "-m", $script, '¿Quién es Rosalía? Busca y dame 3 datos.'],
         $descriptor,
         $pipes,
-        null,
+        realpath( '../') . '/agents',
         $env
     );
 

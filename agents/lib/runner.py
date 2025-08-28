@@ -1,6 +1,7 @@
 import os, sys, json, logging, time, io, warnings
 from typing import Type, Any, Dict, List, Optional
 import traceback
+from .agent import Agent
 from langchain_openai import ChatOpenAI
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_community.utilities import WikipediaAPIWrapper
@@ -257,13 +258,7 @@ class CostTracingHandler(BaseCallbackHandler):
         self.finished.append(call)
         logger.debug(f"[CB] end run_id={run_id} model={model_eff} tok={total_toks} cost={cost:.6f} USD")
 
-def run(agent):
-    if len(sys.argv) < 2:
-        sys.stderr.write( json.dumps({
-            "system": "Error: falta el argumento (prompt)"
-        }, ensure_ascii=False, default=str) )
-        sys.exit(1)
-
+def run(agent: Agent, prompt: str):
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         sys.stderr.write( json.dumps({
@@ -271,52 +266,14 @@ def run(agent):
         }, ensure_ascii=False, default=str) )
         sys.exit(2)
 
-    prompt = sys.argv[1]
-    ctx = None
-    from mirag import MiRag
-    ctx = { "rag": MiRag() }
-    cfg = None
-    if len(sys.argv) >= 3:
-        try:
-            cfg = json.loads(sys.argv[2])
-        except json.JSONDecodeError as e:
-            tb_str = "".join(traceback.format_exception(type(e), e, e.__traceback__))
-            sys.stderr.write(json.dumps({
-                "system": "Error leyendo config JSON",
-                "message": str(e),
-                "type": type(e).__name__,
-                "traceback": tb_str,
-            }, ensure_ascii=False))
-            sys.exit(4)
-
-    # configura tu modelo y parámetros
-    # model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-    # temperature = float(os.getenv("OPENAI_TEMPERATURE", "0"))
-    # max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "256"))
-
     handler = CostTracingHandler()
     enable_global_callback_injection(callbacks=[handler], streaming=False, tags=["app:myapp"], metadata={"tenant":"acme"})
 
     t0 = time.time()
     try:
         logger.debug(f"Prompt recibido: {prompt}")
-        check = agent.lookup_config(cfg)
-        if not check["ok"]:
-            sys.stderr.write(json.dumps({
-                "system": "Config inválida",
-                "errors": check["errors"]
-            }, ensure_ascii=False))
-            sys.exit(5)
-        check = agent.lookup_deps(ctx)
-        if not check["ok"]:
-            sys.stderr.write(json.dumps({
-                "system": "Dependencias inválida",
-                "errors": check["errors"]
-            }, ensure_ascii=False))
-            sys.exit(6)
-        print("NON\n")
-        resp = agent.resolve(prompt, cfg, ctx)
-        print("SEP\n")
+        resp = agent.resolve(prompt)
+
         duration_ms = int((time.time() - t0) * 1000)
 
         # usage y metadatos (estructura puede variar según versión/SDK)
@@ -328,8 +285,6 @@ def run(agent):
         out = {
             "input": prompt,
             "output": resp,
-            # "model_requested": model_name,
-            # "params": {"temperature": temperature, "max_tokens": max_tokens},
             "calls": [
                 {
                     "run_id": c["run_id"],
